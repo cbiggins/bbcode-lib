@@ -1,0 +1,55 @@
+<?php
+
+class FLQ_bbcode {
+
+    public $bbcode_str = array(
+                    'bold_open' => '[b]',
+                    'bold_close' => '[/b]',
+                    'italic_open' => '[i]',
+                    'italic_close' => '[/i]',
+                    'underline_open' => '[u]',
+                    'underline_clode' => '[/u]',
+                    'strikethrough_open' => '[s]',
+                    'strikethrough_clode' => '[/s]'
+    );
+
+    public $bbcode_regex = array(
+                    'url_open' => '/\[url=(^[\]]+)\]/i', 
+                    'url_close' => '[/url]'
+    );
+
+    public $html_str = array(
+                    'bold_open' => '<strong>',
+                    'bold_close' => '</strong>',
+                    'italic_open' => '<em>',
+                    'italic_close' => '</em>',
+                    'underline_open' => '<span style="text-decoration: underline;">',
+                    'underline_clode' => '</span>',
+                    'strikethrough_open' => '<span style="text-decoration: line-through;">',
+                    'strikethrough_clode' => '</span>'
+    );
+
+    public $html_regex = array(
+                    'url_open' => '/<a href=(\'|")(^[\]]+)(\'|")>/i',
+                    'url_close' => '</a>'
+    );
+
+    public $str;
+
+    function __construct($str) {
+        $this->str = $str;
+    }
+
+    // Output current string as HTML standards compliant code
+    public function toHTML($encoded = false) {
+        if (!$encoded) {
+            return str_replace($this->bbcode_str, $this->html_str, $this->str);
+        } else {
+            return htmlentities(str_replace($this->bbcode_str, $this->html_str, $this->str));
+        }
+    }
+
+    public function toBBCode() {
+        return str_replace($this->html_str, $this->bbcode_str, $this->str);
+    }
+}
