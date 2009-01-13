@@ -36,14 +36,17 @@ class FLQ_bbcode {
                     'strikethrough_open' => '[s]',
                     'strikethrough_close' => '[/s]',
                     'center_open' => '[center]',
-                    'center_close' => '[/center]'
+                    'center_close' => '[/center]',
+                    'quote_open' => '[quote]',
+                    'quote_close' => '[/quote]'
     );
 
     public $bbcode_regex = array(
                     'url1' => array('/(\[url=)([^\]]+)(\])([^\]]+)(\[\/url])/', '<a href="$2">$4</a>'),
                     'url2' => array('/(\[url\])([^\]]+)(\[\/url\])/', '<a href="$2">$2</a>'),
                     'color' => array('/(\[color=)([^\]]+)(\])([^\]]+)(\[\/color])/', '<span style="color:$2;">$4</span>'),
-                    'size' => array('/(\[size=)([^\]]+)(\])([^\]]+)(\[\/size])/', '<span style="font-size:$2;">$4</span>')
+                    'size' => array('/(\[size=)([^\]]+)(\])([^\]]+)(\[\/size])/', '<span style="font-size:$2;">$4</span>'),
+                    'quote' => array('/(\[quote=)([^\]]+)(\])([^\]]+)(\[\/quote])/', '<blockquote>$4</blockquote>')
     );
 
     public $html_str = array(
@@ -56,12 +59,14 @@ class FLQ_bbcode {
                     'strikethrough_open' => '<span style="text-decoration: line-through;">',
                     'strikethrough_close' => '</span>',
                     'center_open' => '<div align="center">',
-                    'center_close' => '</div>'
+                    'center_close' => '</div>',
+                    'quote_open' => '<blockquote>',
+                    'quote_close' => '</blockquote>'
     );
 
     public $html_regex = array(
-                    'url' => array('/<a.*href=(\'|")([^\'"]+)(\'|").*>(.*)<\/a>/', '[url=$2]$4[/url]'),
-                    'img' => array('/<img.*src=(\'|")([^\'"]+)(\'|").*>/', '[img]$2[/img]'),
+                    'url' => array('/<a.*href=(\'|")([^\'"]+)(\'|")[^>]*>(.+)<\/a>/', '[url=$2]$4[/url]'),
+                    'img' => array('/<img[^>]*src=(\'|")([^\'"]+)(\'|")[^>]*>/', '[img]$2[/img]'),
     );
 
     public $str;
@@ -70,9 +75,20 @@ class FLQ_bbcode {
         $this->str = $str;
     }
 
+    /**
+        *  newString() is for replacing the current string with a new string so there is no need to create a new object to perform another conversion
+        *
+        * @return null
+        * @param String $str the string to be converted
+        */
     public function newString($str) { $this->str = $str; }
 
-    // Output current string as HTML standards compliant code
+    /**
+        *  toHTML() will output the current bbcode formatted string into valid standards compliant HTML
+        *
+        * @return String
+        * @param Boolean $encoded if true, output will be encoded to visualise the HTML
+        */
     public function toHTML($encoded = false) {
         foreach ($this->bbcode_regex as $type => $regex) {
             $this->str = preg_replace($regex[0], $regex[1], $this->str);
@@ -84,10 +100,16 @@ class FLQ_bbcode {
         }
     }
 
+    /**
+        *  toBBcode() will output the current html formatted string into BBCode, with some exceptions. This will not convert html that uses css for its formatting, so no colours, underlines etc.
+        *
+        * @return String
+        */
     public function toBBCode() {
         foreach ($this->html_regex as $type => $regex) {
             $this->str = preg_replace($regex[0], $regex[1], $this->str);
         }
+
         return str_replace($this->html_str, $this->bbcode_str, $this->str);
     }
 }
